@@ -22,6 +22,8 @@ CRGB leds[NUM_LEDS];
 
 const int LIMIT_LINKS = 50;   // led number where playing area starts
 const int LIMIT_RECHTS = 100;
+const int BORDER_LEFT = 30;
+const int BORDER_RIGHT = 120;
 int tasterBreite = 5;         // length of landing position
 
 const uint8_t taster1 = 8;    // input pin of left key, normally low, high if pressed
@@ -111,18 +113,18 @@ void loop()
 
 
 void drawField() {
-  // draw green 'landing area' on left and right border:
+  // draw green/magenta 'landing area' on left and right border:
   for (int i = LIMIT_LINKS; i <= LIMIT_LINKS + tasterBreite; i++) {
     leds[i] = CRGB::Green;
     for (int i = 0; i < pointsRight; i++) {
-      leds[i + 130] = CRGB::Blue;
+      leds[BORDER_RIGHT - i] = CRGB::Blue;
     }
   }
   for (int i = LIMIT_RECHTS - tasterBreite; i <= LIMIT_RECHTS; i++) {
     leds[i] = CRGB::Magenta;
 
     for (int i = 0; i < pointsLeft; i++) {
-      leds[i] = CRGB::Blue;
+      leds[BORDER_LEFT + i] = CRGB::Blue;
     }
   }
   
@@ -136,7 +138,6 @@ void drawField() {
     pointsLeft = 0;
     redScreen();
   }
-
   if (pointsRight == 5) {
     for (int i = 0; i <= NUM_LEDS; i++) {
       leds[i] = CRGB::Magenta;
@@ -147,7 +148,6 @@ void drawField() {
     redScreen();
   }
   FastLED.show();
-
 }
 
 // flash red and initialize from beginning
@@ -156,13 +156,16 @@ void redScreen() {
     leds[i] = CRGB::Red;
   }
   FastLED.show();
-  delay(1000);
+  delay(300);
 
   for (int i = 0; i <= NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
   }
   drawField();
   pos = (LIMIT_LINKS + LIMIT_RECHTS) / 2;
-  dir = 1;
+  if ((rand() % 2) == 1)    // assign random direction
+    dir = 1;
+  else
+    dir = -1; 
   fast = del;
 }
